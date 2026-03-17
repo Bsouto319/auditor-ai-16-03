@@ -320,7 +320,7 @@ const RegistrosPage = ({ data }) => {
 
   if (!data) {
     return (
-      <div className="empty-state">
+      <div className="empty-state" data-testid="registros-page-empty">
         <FileText size={64} className="empty-icon" />
         <h2>Nenhum registro</h2>
         <p>Faça upload de um PDF para ver os registros</p>
@@ -357,7 +357,7 @@ const RegistrosPage = ({ data }) => {
           <h2>Registros</h2>
           <p>{getFilteredRegistros().length} registros</p>
         </div>
-        <div className="date-display">
+        <div className="date-display" data-testid="registros-date">
           <Calendar size={18} />
           {data.data_relatorio}
         </div>
@@ -381,7 +381,7 @@ const RegistrosPage = ({ data }) => {
 const DivergenciasPage = ({ data }) => {
   if (!data) {
     return (
-      <div className="empty-state">
+      <div className="empty-state" data-testid="divergencias-page-empty">
         <AlertTriangle size={64} className="empty-icon" />
         <h2>Nenhuma análise</h2>
         <p>Faça upload de um PDF para detectar divergências</p>
@@ -401,22 +401,22 @@ const DivergenciasPage = ({ data }) => {
           </h2>
           <p>{data.divergencias?.length || 0} divergências encontradas · Diferença total: {formatCurrency(totalDivergencias)}</p>
         </div>
-        <div className="date-display">
+        <div className="date-display" data-testid="divergencias-date">
           <Calendar size={18} />
           {data.data_relatorio}
         </div>
       </div>
 
       <div className="stats-grid stats-grid-3">
-        <div className="stat-card stat-card-danger">
+        <div className="stat-card stat-card-danger" data-testid="stat-total-divergencias">
           <span className="stat-card-title">TOTAL DIVERGÊNCIAS</span>
           <div className="stat-card-value">{data.divergencias?.length || 0}</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" data-testid="stat-diferenca-total">
           <span className="stat-card-title">DIFERENÇA TOTAL</span>
           <div className="stat-card-value">{formatCurrency(totalDivergencias)}</div>
         </div>
-        <div className="stat-card">
+        <div className="stat-card" data-testid="stat-registros-analisados">
           <span className="stat-card-title">REGISTROS ANALISADOS</span>
           <div className="stat-card-value">{data.registros?.length || 0}</div>
         </div>
@@ -431,7 +431,7 @@ const DivergenciasPage = ({ data }) => {
 const SaidasPage = ({ data }) => {
   if (!data) {
     return (
-      <div className="empty-state">
+      <div className="empty-state" data-testid="saidas-page-empty">
         <LogOut size={64} className="empty-icon" />
         <h2>Nenhuma saída</h2>
         <p>Faça upload de um PDF para ver saídas previstas</p>
@@ -446,7 +446,7 @@ const SaidasPage = ({ data }) => {
           <h2>Saídas Previstas</h2>
           <p>{data.saidas?.length || 0} saídas próximas · {data.registros?.length || 0} total no relatório</p>
         </div>
-        <div className="date-display">
+        <div className="date-display" data-testid="saidas-date">
           <Calendar size={18} />
           {data.data_relatorio}
         </div>

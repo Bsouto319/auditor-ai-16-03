@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timedelta
 import pdfplumber
 import io
 import tempfile
@@ -74,7 +74,7 @@ def parse_valor(texto: str) -> float:
         texto = texto.replace('.', '').replace(',', '.')
     try:
         return float(texto)
-    except:
+    except ValueError:
         return 0.0
 
 def extrair_valor_observacao(obs: str) -> Optional[float]:
@@ -322,7 +322,8 @@ def extrair_registros_avancado(pdf_content: bytes) -> RelatorioProcessado:
                     break
             else:
                 text = None
-    except:
+    except Exception as e:
+        logger.warning(f"Erro ao ler PDF com pdfplumber: {e}")
         text = None
     
     # Se não tem texto nativo, usa OCR
@@ -350,12 +351,11 @@ def extrair_registros_avancado(pdf_content: bytes) -> RelatorioProcessado:
     saidas = []
     if data_relatorio:
         try:
-            from datetime import datetime, timedelta
             dt_relatorio = datetime.strptime(data_relatorio, '%d/%m/%Y')
             dt_amanha = dt_relatorio + timedelta(days=1)
             data_amanha = dt_amanha.strftime('%d/%m/%Y')
             saidas = [r for r in registros if r.partida in [data_relatorio, data_amanha]]
-        except:
+        except ValueError:
             saidas = [r for r in registros if r.partida == data_relatorio]
     
     # Divergências (excluindo PGTO_DIRETO e ONLINE_B2B)
