@@ -23,7 +23,8 @@ import {
   X
 } from "lucide-react";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const BREAKING_NEWS = "Nexus AI v1.0 - Neural Core Active";
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || '';
 const API = `${BACKEND_URL}/api`;
 
 // Formatador de moeda brasileira
@@ -47,8 +48,8 @@ const Sidebar = ({ activeTab, setActiveTab }) => {
   return (
     <aside className="sidebar" data-testid="sidebar">
       <div className="sidebar-header">
-        <h1 className="sidebar-title">AuditHotel</h1>
-        <span className="sidebar-subtitle">Auditoria Hoteleira</span>
+        <h1 className="sidebar-title">Nexus AI</h1>
+        <span className="sidebar-subtitle">Auditoria de Insumos</span>
       </div>
       <nav className="sidebar-nav">
         {menuItems.map(item => (
@@ -568,13 +569,13 @@ const UploadPage = ({ onUpload, isLoading }) => {
       </div>
 
       <div className="upload-info">
-        <h3>O que será analisado:</h3>
+        <h3>O que será analisado pelo Nexus AI:</h3>
         <ul>
-          <li><ChevronRight size={16} /> Categorização automática por origem (Melia, Booking, Expedia)</li>
-          <li><ChevronRight size={16} /> Detecção de pagamentos diretos, faturados e confidenciais</li>
-          <li><ChevronRight size={16} /> Identificação de divergências de tarifa</li>
-          <li><ChevronRight size={16} /> Listagem de saídas do dia</li>
-          <li><ChevronRight size={16} /> Cálculo de revenue e ADR</li>
+          <li><ChevronRight size={16} /> Extração neural de itens e quantidades via GPT-4o Vision</li>
+          <li><ChevronRight size={16} /> Categorização inteligente de fornecedores e produtos</li>
+          <li><ChevronRight size={16} /> Identificação de divergências em faturas e boletos</li>
+          <li><ChevronRight size={16} /> Auditoria hoteleira completa (hóspedes, saídas, revenue)</li>
+          <li><ChevronRight size={16} /> Exportação automatizada para Excel e Auditoria</li>
         </ul>
       </div>
     </div>
@@ -605,24 +606,31 @@ function App() {
   const [activeTab, setActiveTab] = useState('upload');
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [extractionStatus, setExtractionStatus] = useState('');
   const [error, setError] = useState(null);
 
   const handleUpload = async (file) => {
     setIsLoading(true);
+    setExtractionStatus('Iniciando processamento neural...');
     setError(null);
     
     const formData = new FormData();
     formData.append('file', file);
     
     try {
+      setTimeout(() => setExtractionStatus('Mapeando campos via GPT-4o Vision...'), 2000);
+      setTimeout(() => setExtractionStatus('Auditando divergências de tarifa...'), 4000);
+      
       const response = await axios.post(`${API}/upload-pdf`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      
       setData(response.data);
-      setActiveTab('dashboard');
+      setExtractionStatus('Extração concluída com sucesso!');
+      setTimeout(() => setActiveTab('dashboard'), 800);
     } catch (err) {
       console.error('Erro no upload:', err);
-      setError(err.response?.data?.detail || 'Erro ao processar PDF');
+      setError(err.response?.data?.detail || 'Erro ao processar PDF. Verifique se o Backend na Railway está online.');
     } finally {
       setIsLoading(false);
     }
@@ -639,7 +647,7 @@ function App() {
 
   const handleExport = () => {
     if (data) {
-      exportToCSV(data, `auditoria_${data.data_relatorio?.replace(/\//g, '-')}.csv`);
+      exportToCSV(data, `nexus_auditoria_${data.data_relatorio?.replace(/\//g, '-')}.csv`);
     }
   };
 
@@ -655,7 +663,20 @@ function App() {
         return <SaidasPage data={data} />;
       case 'upload':
       default:
-        return <UploadPage onUpload={handleUpload} isLoading={isLoading} />;
+        return (
+          <>
+            {isLoading && (
+              <div className="neural-loading-overlay">
+                <div className="neural-core">
+                  <div className="neural-ring"></div>
+                  <Cpu size={48} className="neural-icon animate-pulse" />
+                </div>
+                <p className="neural-status">{extractionStatus}</p>
+              </div>
+            )}
+            <UploadPage onUpload={handleUpload} isLoading={isLoading} />
+          </>
+        );
     }
   };
 
@@ -664,6 +685,11 @@ function App() {
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
       
       <main className="main-content">
+        <div className="breaking-news-ticker">
+          <Zap size={14} />
+          <span>{BREAKING_NEWS}</span>
+        </div>
+
         {error && (
           <div className="error-banner" data-testid="error-banner">
             <AlertTriangle size={20} />
